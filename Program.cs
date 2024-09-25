@@ -44,7 +44,7 @@ namespace lab4_1
 
         public static MyMatrix operator +(MyMatrix a, MyMatrix b)
         {
-            if (a.columns == b.rows)
+            if (a.columns == b.columns && a.rows == b.rows)
             {
 
                 MyMatrix new_matrix = new MyMatrix(a.rows, a.columns);
@@ -78,22 +78,29 @@ namespace lab4_1
 
         public static MyMatrix operator *(MyMatrix a, MyMatrix b)
         {
-            MyMatrix new_matrix = new MyMatrix(a.rows, b.columns);
 
-            for (int i = 0; i < a.rows; i++)
+            if (a.columns == b.rows)
             {
-                for (int j = 0; j < b.columns; j++)
+
+                MyMatrix new_matrix = new MyMatrix(a.rows, b.columns);
+
+                for (int i = 0; i < a.rows; i++)
                 {
-                    for (int k = 0; k < a.columns; k++)
+                    for (int j = 0; j < b.columns; j++)
                     {
-                        new_matrix[i, j] += a[i, k] * b[k, j];
+                        for (int k = 0; k < a.columns; k++)
+                        {
+                            new_matrix[i, j] += a[i, k] * b[k, j];
+                        }
                     }
                 }
+                return new_matrix;
             }
-            return new_matrix;
+            else { throw new InvalidOperationException("Неправильные размеры матриц!"); }
+            
         }
 
-        public static MyMatrix operator *(MyMatrix a, double chislo)
+    public static MyMatrix operator *(MyMatrix a, double chislo)
         {
             MyMatrix new_matrix = new MyMatrix(a.rows, a.columns);
 
@@ -135,7 +142,8 @@ namespace lab4_1
             MyMatrix a = new MyMatrix(4, 5);
             MyMatrix b = new MyMatrix(5, 3);
 
-            MyMatrix c = a * b;
+            MyMatrix c = a * b; // тут создается новая матрица, диапазон значений можно вводить 0 0
+            Console.WriteLine(c[0,0]);
         }
     }
 }
