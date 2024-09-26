@@ -1,75 +1,112 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace lab4_2
+namespace lab4_3
 {
     public class Car
     {
         public string Name { get; set; }
         public int ProductionYear { get; set; }
         public int MaxSpeed { get; set; }
-        public Car(string name, int productionyear, int maxspeed) {
+        public Car(string name, int productionyear, int maxspeed)
+        {
             Name = name;
             ProductionYear = productionyear;
             MaxSpeed = maxspeed;
         }
     }
 
-    public class CarComparer : IComparer<Car>
+    public class CarCatalog: IEnumerable<Car>
     {
-        private string sortnum;
-
-        public CarComparer(string sortnum)
+        private Car[] cars;
+        public CarCatalog(params Car[] Arg)
         {
-            this.sortnum = sortnum;
-        }
-
-        public int Compare(Car x, Car y)
-        {
-            switch (sortnum)
+            cars = new Car[Arg.Length];
+            for(int i = 0; i < cars.Length; i++)
             {
-                case "Name":
-                    return string.Compare(x.Name, y.Name);
-                case "ProductionYear":
-                    return x.ProductionYear.CompareTo(y.ProductionYear);
-                case "MaxSpeed":
-                    return x.MaxSpeed.CompareTo(y.MaxSpeed);
-                default:
-                    throw new ArgumentException("Неверный параметр сравнения");
+                this.cars[i] = Arg[i];
             }
         }
-        internal class Program2
+
+        public IEnumerator<Car> GetEnumerator()
         {
-            static void Main(string[] args)
+            foreach (var car in cars)
             {
-                Car car1 = new Car("bmw", 1991, 228);
-                Car car2 = new Car("gaz", 1992, 229);
-                Car car3 = new Car("audi", 2026, 666);
-                Car car4 = new Car("volvo", 3026, 999);
-                Car[] cars = new Car[4];
-                cars[0] = car1;
-                cars[1] = car2;
-                cars[2] = car3;
-                cars[3] = car4;
-                Array.Sort(cars, new CarComparer("Name"));
-                foreach (Car car in cars) {
-                    Console.WriteLine($"{car.Name} ({car.ProductionYear}) - {car.MaxSpeed}");
-                }
+                yield return car;
+            }
+        }
 
-                Array.Sort(cars, new CarComparer("ProductionYear"));
-                foreach (Car car in cars)
-                {
-                    Console.WriteLine($"{car.Name} ({car.ProductionYear}) - {car.MaxSpeed}");
-                }
+        public IEnumerable<Car> GetEnumeratorReverse()
+        {
+            for (int i = cars.Length - 1; i >= 0; i--)
+            {
+                yield return cars[i];
+            }
+        }
 
-                Array.Sort(cars, new CarComparer("MaxSpeed"));
-                foreach (Car car in cars)
+        public IEnumerable<Car> GetEnumeratorByProductionYear(int year)
+        {
+            foreach (var car in cars)
+            {
+                if (car.ProductionYear == year)
                 {
-                    Console.WriteLine($"{car.Name} ({car.ProductionYear}) - {car.MaxSpeed}");
+                    yield return car;
                 }
+            }
+        }
+
+        public IEnumerable<Car> GetEnumeratorByMaxSpeed(int maxSpeed)
+        {
+            foreach (var car in cars)
+            {
+                if (car.MaxSpeed >= maxSpeed)
+                {
+                    yield return car;
+                }
+            }
+        }
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
+    internal class Program2
+    {
+        static void Main(string[] args)
+        {
+            Car[] cars = new Car[]
+            {
+                new Car ("Toyota",2015,180),
+                new Car ("Ford", 2012, 160),
+                new Car ("Honda", 2018, 200),
+                new Car ("Nissan", 2010, 140),
+                new Car ("BMW", 2016, 220)
+            };
+
+            CarCatalog catalog = new CarCatalog(cars);
+
+            foreach (var car in catalog)
+            {
+                Console.WriteLine($"{car.Name} - {car.ProductionYear} - {car.MaxSpeed}");
+            }
+
+            foreach (var car in catalog.GetEnumeratorReverse())
+            {
+                Console.WriteLine($"{car.Name} - {car.ProductionYear} - {car.MaxSpeed}");
+            }
+
+            foreach (var car in catalog.GetEnumeratorByProductionYear(2015))
+            {
+                Console.WriteLine($"{car.Name} - {car.ProductionYear} - {car.MaxSpeed}");
+            }
+
+            foreach (var car in catalog.GetEnumeratorByMaxSpeed(180))
+            {
+                Console.WriteLine($"{car.Name} - {car.ProductionYear} - {car.MaxSpeed}");
             }
         }
     }
